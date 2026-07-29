@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentimentAI — Sentiment Analysis</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+    :root { --bg:#0f172a; --bg2:#111827; --card:rgba(22,34,56,.68); --line:rgba(148,163,184,.17); --text:#e9f0fb; --muted:#94a3b8; --blue:#3b82f6; --green:#22c55e; --yellow:#facc15; --red:#ef4444; }
+    * { box-sizing:border-box } html { scroll-behavior:smooth } body { margin:0; color:var(--text); background:radial-gradient(circle at 88% 5%,#1e3a8a55,transparent 28%),linear-gradient(135deg,var(--bg),var(--bg2)); font-family:'DM Sans',sans-serif; min-height:100vh }
+    .container { width:min(1150px,calc(100% - 40px)); margin:auto; position:relative; z-index:1 }.glass { border:1px solid var(--line); background:var(--card); box-shadow:0 18px 55px #02061735; backdrop-filter:blur(16px); border-radius:20px }
+    nav { height:78px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line) }.brand { display:flex; align-items:center; gap:10px; font:800 20px Manrope }.brand-icon { width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg,#3b82f6,#6366f1); box-shadow:0 8px 18px #2563eb55 }.links { display:flex; gap:28px }.links a { color:var(--muted); font-size:14px; text-decoration:none }.links a:hover { color:#93c5fd }.theme { padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:#ffffff0d; color:var(--text); cursor:pointer }
+    .hero { display:flex; align-items:center; justify-content:space-between; min-height:360px; padding:55px 58px 35px }.tag { display:inline-flex; gap:8px; align-items:center; color:#93c5fd; border:1px solid #3b82f644; border-radius:99px; padding:7px 10px; font-size:10px; font-weight:700; letter-spacing:1.2px }.tag i { width:6px; height:6px; background:var(--green); border-radius:50%; box-shadow:0 0 8px var(--green) } h1,h2,h3 { font-family:Manrope;margin:0 }.hero h1 { max-width:650px; margin:18px 0; font-size:clamp(37px,5vw,59px); line-height:1.1; letter-spacing:-2.4px }.hero h1 em { color:#60a5fa; font-style:normal }.hero p { max-width:530px; color:var(--muted); line-height:1.7 }.stats { display:flex; gap:25px; color:var(--muted); font-size:12px; margin-top:22px }.stats b { color:var(--text); font-size:14px }.orb { width:220px; height:220px; margin-right:30px; position:relative; border:1px solid #60a5fa55; border-radius:50%; animation:spin 16s linear infinite }.orb:before,.orb:after { content:''; position:absolute; border:1px solid #60a5fa44; border-radius:50%; inset:22px }.orb:after { inset:-20px; transform:rotate(42deg) scaleY(.6) }.brain { position:absolute; inset:52px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle at 32% 27%,#60a5fa,#2563eb 60%,#312e81); box-shadow:0 0 50px #3b82f6aa; font-size:37px; animation:spin 16s linear infinite reverse }
+    .layout { display:grid; grid-template-columns:1fr 285px; gap:20px }.analyzer { padding:27px }.heading { display:flex; justify-content:space-between; align-items:flex-start; gap:12px }.eyebrow { color:#79a7e8; font-size:10px; font-weight:700; letter-spacing:1.2px }.heading h2 { margin-top:5px; font-size:20px; letter-spacing:-.6px }.sample { background:transparent; color:#93c5fd; border:1px solid var(--line); padding:8px 10px; border-radius:10px; cursor:pointer; font-size:12px } textarea { width:100%; height:150px; resize:vertical; border:1px solid var(--line); outline:0; border-radius:14px; margin-top:22px; padding:16px; color:var(--text); background:#0f172a66; font:14px/1.6 'DM Sans'; transition:.2s } textarea:focus { border-color:#3b82f6; box-shadow:0 0 0 3px #3b82f622 } textarea::placeholder { color:#71809b }.meta { display:flex; justify-content:space-between; margin:7px 4px 0; color:#71809b; font-size:11px }.actions { display:flex; justify-content:space-between; gap:12px; margin-top:18px }.actions div { display:flex; gap:8px }.btn { border-radius:10px; padding:10px 12px; border:1px solid var(--line); background:#ffffff0c; color:var(--text); font-size:12px; cursor:pointer }.primary { color:white; border:0; font-weight:700; background:linear-gradient(120deg,#2563eb,#3b82f6); box-shadow:0 8px 18px #2563eb55 }.primary:hover { transform:translateY(-2px) }.history { padding:25px 17px }.history-list { margin-top:18px; color:#71809b; text-align:center; padding:35px 12px; font-size:12px }.history-list article { display:none; text-align:left; margin:7px 0; padding:9px; border-radius:10px; background:#ffffff08; cursor:pointer; color:var(--text) }.history-list article small { display:block; margin-top:4px; color:#71809b }.history-list.show { padding:0 }.history-list.show p { display:none }.result { display:none; margin:68px auto 26px }.result.visible { display:block }.result-title { margin-bottom:20px }.result-grid { display:grid; grid-template-columns:1.05fr 1fr 1.1fr; gap:18px }.result article { min-height:205px; padding:23px }.sentiment { display:flex; align-items:center; gap:13px; margin-top:25px }.emoji { display:grid; place-items:center; width:56px; height:56px; border-radius:15px; background:#ffffff11; font-size:29px }.sentiment h3 { font-size:22px }.sentiment p,.explain p { color:var(--muted); margin:5px 0; font-size:12px; line-height:1.65 }.score { margin-top:21px; font-size:11px; color:var(--muted) }.score div { display:flex; justify-content:space-between }.track { height:7px; margin-top:8px; border-radius:99px; overflow:hidden; background:#ffffff14 }.track i { display:block; height:100%; border-radius:inherit; background:var(--green); transition:width 1s ease }.donut-wrap { display:flex; align-items:center; gap:15px; margin-top:16px }.donut { width:125px; height:125px; position:relative; border-radius:50%; background:conic-gradient(var(--green) 0 92%,var(--yellow) 92% 97%,var(--red) 97% 100%) }.donut:after { content:'92%\A confidence'; white-space:pre; position:absolute; inset:20px; display:grid; place-content:center; text-align:center; border-radius:50%; background:#182238; color:var(--text); font:700 18px Manrope; line-height:1.55 }.legend { font-size:10px; color:var(--muted); line-height:2.2 }.legend span { display:inline-block; width:7px; height:7px; margin-right:6px; border-radius:50% }.explain { display:flex; gap:13px }.spark { flex:none; width:35px; height:35px; display:grid; place-items:center; border-radius:10px; background:#3b82f622 }.explain h3 { margin-top:9px; font-size:16px }.breakdown { margin-top:18px; padding:23px }.bar { display:grid; grid-template-columns:90px 1fr 34px; align-items:center; gap:12px; margin-top:16px; font-size:12px }.bar b { text-align:right } footer { display:flex; justify-content:space-between; padding:27px 0 34px; color:#71809b; border-top:1px solid var(--line); margin-top:40px; font-size:11px }
+    @keyframes spin { to { transform:rotate(360deg) } } @media(max-width:800px){.hero{padding:50px 20px}.orb{display:none}.layout{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr 1fr}.explain{grid-column:1/-1}} @media(max-width:540px){.container{width:min(100% - 28px,1150px)}.links{display:none}.hero{padding:45px 3px 28px}.hero h1{letter-spacing:-1.7px}.actions{flex-direction:column-reverse}.primary{width:100%}.result-grid{grid-template-columns:1fr}.explain{grid-column:auto}.donut-wrap{justify-content:center}footer{flex-direction:column;gap:10px;text-align:center}}
+    /* Chart and history fixes */
+    .donut:after { display:none }
+    .donut { display:grid; place-items:center }
+    .donut-center { width:85px; height:85px; display:grid; place-content:center; text-align:center; border-radius:50%; background:#182238; color:var(--text); font:700 17px/1.25 Manrope }
+    .donut-center small { color:var(--muted); font:10px 'DM Sans' }
+    .history-list article { display:block; width:100%; border:0; text-align:left }
+    .history-list article:hover { background:#3b82f620 }
+    /* Light theme variables used by the toggle button. */
+    body { transition: background .3s ease, color .3s ease }
+    body.light { --bg:#f5f8ff; --bg2:#eaf1fb; --card:rgba(255,255,255,.76); --line:rgba(100,116,139,.22); --text:#17213b; --muted:#64748b; background:radial-gradient(circle at 88% 5%,#bfdbfeaa,transparent 28%),linear-gradient(135deg,var(--bg),var(--bg2)) }
+    body.light textarea { background:#ffffffaa }
+    body.light .donut-center { background:#f8fbff }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav><div class="brand"><span class="brand-icon">✦</span>SentimentAI</div><div class="links"><a href="#home">Home</a><a href="#history">History</a><a href="#about">About</a></div><button class="theme" onclick="toggleTheme()">☀ Theme</button></nav>
+    <section class="hero" id="home"><div><span class="tag"><i></i> AI-POWERED TEXT INTELLIGENCE</span><h1>Understand the emotion <em>behind every word.</em></h1><p>Transform unstructured feedback into clear, actionable sentiment insights in seconds.</p><div class="stats"><span><b>98.4%</b> accuracy</span><span><b>&lt; 1 sec</b> analysis time</span></div></div><div class="orb"><div class="brain">✦</div></div></section>
+    <main class="layout"><section class="glass analyzer"><div class="heading"><div><span class="eyebrow">TEXT ANALYZER</span><h2>What are people saying?</h2></div><button class="sample" onclick="sampleText()">Try an example ↗</button></div><textarea id="text" maxlength="8000" oninput="countChars()" placeholder="Enter or paste text to analyze..."></textarea><div class="meta"><span>Plain text only</span><span id="count">0 / 8,000</span></div><div class="actions"><div><button class="btn" onclick="document.getElementById('file').click()">↑ Upload TXT</button><input id="file" type="file" accept=".txt" hidden onchange="readFile(event)"><button class="btn" onclick="clearText()">Clear</button></div><button class="btn primary" onclick="analyze()">✦ Analyze sentiment</button></div></section>
+      <aside class="glass history" id="history"><div class="heading"><div><span class="eyebrow">RECENT ACTIVITY</span><h2>History</h2></div><span>◷</span></div><div class="history-list" id="historyList"><p>Your analyses will appear here.</p></div></aside></main>
+    <section class="result" id="result"><div class="heading result-title"><div><span class="eyebrow">ANALYSIS COMPLETE</span><h2>Your sentiment insights</h2></div><span style="color:var(--green)">●</span></div><div class="result-grid"><article class="glass"><span class="eyebrow">PREDICTED SENTIMENT</span><div class="sentiment"><span class="emoji" id="emoji">😊</span><div><h3 id="label" style="color:var(--green)">Positive</h3><p>Detected with high certainty</p></div></div><div class="score"><div><span>Confidence score</span><b id="confidence">92%</b></div><div class="track"><i id="confidenceBar" style="width:92%"></i></div></div></article><article class="glass"><span class="eyebrow">SENTIMENT DISTRIBUTION</span><div class="donut-wrap"><div class="donut" id="donut"></div><div class="legend"><div><span style="background:var(--green)"></span>Positive <b id="posLegend">92%</b></div><div><span style="background:var(--yellow)"></span>Neutral <b id="neuLegend">5%</b></div><div><span style="background:var(--red)"></span>Negative <b id="negLegend">3%</b></div></div></div></article><article class="glass explain"><div class="spark">✦</div><div><span class="eyebrow">MODEL EXPLANATION</span><h3>Why this result?</h3><p id="explanation">The language contains optimistic and appreciative terms, indicating a favourable emotional tone.</p></div></article></div><article class="glass breakdown"><span class="eyebrow">PROBABILITY BREAKDOWN</span><div class="bar"><span>😊 Positive</span><div class="track"><i id="posBar" style="width:92%;background:var(--green)"></i></div><b id="posValue">92%</b></div><div class="bar"><span>😐 Neutral</span><div class="track"><i id="neuBar" style="width:5%;background:var(--yellow)"></i></div><b id="neuValue">5%</b></div><div class="bar"><span>😞 Negative</span><div class="track"><i id="negBar" style="width:3%;background:var(--red)"></i></div><b id="negValue">3%</b></div></article></section>
+    <footer id="about"><span>© 2026 SentimentAI</span><span>Powered by Machine Learning &nbsp;•&nbsp; Built with React and Flask</span></footer>
+  </div>
+  <script>
+    const data={positive:{icon:'😊',color:'#22c55e',score:[92,5,3],why:'The language contains optimistic and appreciative terms, indicating a favourable emotional tone.'},neutral:{icon:'😐',color:'#facc15',score:[11,78,11],why:'The wording is factual and balanced, with no strong positive or negative emotional signals.'},negative:{icon:'😞',color:'#ef4444',score:[6,7,87],why:'The text includes dissatisfied or critical language, suggesting an unfavourable emotional tone.'}};
+    function countChars(){document.getElementById('count').textContent=document.getElementById('text').value.length.toLocaleString()+' / 8,000'}
+    function sampleText(){document.getElementById('text').value='I am genuinely impressed with how intuitive and helpful this experience has been. Everything works beautifully!';countChars()}
+    function clearText(){document.getElementById('text').value='';countChars()}
+    function readFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=x=>{document.getElementById('text').value=x.target.result.slice(0,8000);countChars()};r.readAsText(f)}
+function saveHistory(text, sentiment, confidence) {
+
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+
+    history.unshift({
+        text: text,
+        sentiment: sentiment,
+        confidence: confidence,
+        time: new Date().toLocaleString()
+    });
+
+    // Keep only last 10 analyses
+    history = history.slice(0,10);
+
+    localStorage.setItem("history", JSON.stringify(history));
+
+    loadHistory();
+}
+
+function loadHistory(){
+
+    const container = document.getElementById("historyList");
+
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+
+    if(history.length === 0){
+        container.innerHTML = "<p>Your analyses will appear here.</p>";
+        return;
+    }
+
+    container.classList.add("show");
+
+    container.innerHTML = history.map(item=>`
+        <article style="display:block">
+            <strong>${item.sentiment}</strong>
+            (${item.confidence}%)
+            <small>${item.text.substring(0,45)}...</small>
+            <small>${item.time}</small>
+        </article>
+    `).join("");
+
+}
+   async function analyze() {
+
+    const text = document.getElementById("text").value.trim();
+
+    if (!text) {
+        alert("Please enter some text.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text: text
+            })
+        });
+
+        const result = await response.json();
+
+// Main prediction
+document.getElementById("label").textContent = result.sentiment;
+document.getElementById("confidence").textContent = result.confidence + "%";
+document.getElementById("confidenceBar").style.width = result.confidence + "%";
+
+// Emoji
+const emojis = {
+    Positive: "😊",
+    Neutral: "😐",
+    Negative: "😞"
+};
+
+document.getElementById("emoji").textContent =
+    emojis[result.sentiment];
+
+// Convert scores (0-1) to percentages
+const positive = (result.scores.positive * 100).toFixed(1);
+const neutral = (result.scores.neutral * 100).toFixed(1);
+const negative = (result.scores.negative * 100).toFixed(1);
+
+// Probability bars
+document.getElementById("posBar").style.width = positive + "%";
+document.getElementById("neuBar").style.width = neutral + "%";
+document.getElementById("negBar").style.width = negative + "%";
+
+// Probability values
+document.getElementById("posValue").textContent = positive + "%";
+document.getElementById("neuValue").textContent = neutral + "%";
+document.getElementById("negValue").textContent = negative + "%";
+
+// Legend
+document.getElementById("posLegend").textContent = positive + "%";
+document.getElementById("neuLegend").textContent = neutral + "%";
+document.getElementById("negLegend").textContent = negative + "%";
+
+// Donut chart
+document.getElementById("donut").style.background =
+`conic-gradient(
+#22c55e 0 ${positive}%,
+#facc15 ${positive}% ${Number(positive) + Number(neutral)}%,
+#ef4444 ${Number(positive) + Number(neutral)}% 100%
+)`;
+
+// Explanation
+if (result.sentiment === "Positive") {
+    document.getElementById("explanation").textContent =
+        "The text contains optimistic and appreciative language.";
+}
+else if (result.sentiment === "Negative") {
+    document.getElementById("explanation").textContent =
+        "The text contains dissatisfied or critical language.";
+}
+else {
+    document.getElementById("explanation").textContent =
+        "The text is factual and emotionally balanced.";
+}
+
+// Show result
+document.getElementById("result").classList.add("visible");
+
+saveHistory(
+    text,
+    result.sentiment,
+    result.confidence
+);
+
+console.log(result);
+
+    } catch (error) {
+
+        console.error(error);
+        alert("Could not connect to the backend.");
+
+    }
+
+}
+loadHistory();
+
+// Corrected chart and persistent, restorable history.
+function normalizeScores(scores) {
+    const value = key => Number(scores?.[key] ?? 0);
+    const max = Math.max(value('positive'), value('neutral'), value('negative'));
+    const factor = max <= 1 ? 100 : 1;
+    return { positive: value('positive') * factor, neutral: value('neutral') * factor, negative: value('negative') * factor };
+}
+
+function showResult(result, text, scrollToResult) {
+    const scores = normalizeScores(result.scores);
+    const entries = Object.entries(scores);
+    const total = entries.reduce((sum, [, value]) => sum + value, 0) || 100;
+    const values = Object.fromEntries(entries.map(([key, value]) => [key, +(value / total * 100).toFixed(1)]));
+    const sentiment = String(result.sentiment || 'Neutral');
+    const colors = { Positive: '#22c55e', Neutral: '#facc15', Negative: '#ef4444' };
+    const emojis = { Positive: '😊', Neutral: '😐', Negative: '😞' };
+    const confidence = Number(result.confidence ?? Math.max(...Object.values(values))).toFixed(1).replace('.0', '');
+    document.getElementById('label').textContent = sentiment;
+    document.getElementById('label').style.color = colors[sentiment] || '#facc15';
+    document.getElementById('emoji').textContent = emojis[sentiment] || '😐';
+    document.getElementById('confidence').textContent = confidence + '%';
+    document.getElementById('confidenceBar').style.width = confidence + '%';
+    document.getElementById('confidenceBar').style.background = colors[sentiment] || '#facc15';
+    [['pos', 'positive'], ['neu', 'neutral'], ['neg', 'negative']].forEach(([id, key]) => {
+        const percent = values[key];
+        document.getElementById(id + 'Bar').style.width = percent + '%';
+        document.getElementById(id + 'Value').textContent = percent + '%';
+        document.getElementById(id + 'Legend').textContent = percent + '%';
+    });
+    document.getElementById('donut').style.background = `conic-gradient(#22c55e 0 ${values.positive}%, #facc15 ${values.positive}% ${values.positive + values.neutral}%, #ef4444 ${values.positive + values.neutral}% 100%)`;
+    let center = document.getElementById('donutCenter');
+    if (!center) { center = document.createElement('div'); center.id = 'donutCenter'; center.className = 'donut-center'; document.getElementById('donut').append(center); }
+    center.innerHTML = `${Math.max(...Object.values(values))}%<small>confidence</small>`;
+    const explanation = sentiment === 'Positive' ? 'The text contains optimistic and appreciative language.' : sentiment === 'Negative' ? 'The text contains dissatisfied or critical language.' : 'The text is factual and emotionally balanced.';
+    document.getElementById('explanation').textContent = explanation;
+    document.getElementById('result').classList.add('visible');
+    if (scrollToResult) document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function loadHistory() {
+    const container = document.getElementById('historyList');
+    const history = JSON.parse(localStorage.getItem('sentimentHistory') || localStorage.getItem('history') || '[]');
+    container.replaceChildren();
+    if (!history.length) { container.innerHTML = '<p>Your analyses will appear here.</p>'; container.classList.remove('show'); return; }
+    container.classList.add('show');
+    history.forEach(item => {
+        const entry = document.createElement('article');
+        entry.innerHTML = `<strong>${item.sentiment === 'Positive' ? '😊' : item.sentiment === 'Negative' ? '😞' : '😐'} ${item.sentiment} (${item.confidence}%)</strong><small></small><small>${item.time}</small>`;
+        entry.querySelector('small').textContent = item.text.length > 45 ? item.text.slice(0, 45) + '…' : item.text;
+        entry.onclick = () => { document.getElementById('text').value = item.text; countChars(); showResult(item, item.text, true); };
+        container.append(entry);
+    });
+}
+
+async function analyze() {
+    const text = document.getElementById('text').value.trim();
+    if (!text) { alert('Please enter some text.'); return; }
+    try {
+        const response = await fetch('http://127.0.0.1:5000/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+        if (!response.ok) throw new Error('Request failed');
+        const result = await response.json();
+        showResult(result, text, true);
+        const history = JSON.parse(localStorage.getItem('sentimentHistory') || localStorage.getItem('history') || '[]');
+        history.unshift({ text, sentiment: result.sentiment, confidence: result.confidence, scores: result.scores, time: new Date().toLocaleString() });
+        localStorage.setItem('sentimentHistory', JSON.stringify(history.slice(0, 10)));
+        loadHistory();
+    } catch (error) { console.error(error); alert('Could not connect to the backend.'); }
+}
+
+loadHistory();
+function toggleTheme() {
+    const lightMode = document.body.classList.toggle('light');
+    const button = document.querySelector('.theme');
+    button.textContent = lightMode ? '☾ Dark mode' : '☀ Light mode';
+}
+</script>
+</body>
+</html>
